@@ -42,15 +42,15 @@ $route['default_controller'] = "main";
 $route['404_override'] = '';
 
 /** Main **/
-$route['como'] = 'main/como';
+/*$route['como'] = 'main/como';
 $route['proyectos'] = 'main/proyectos';
 $route['proyecto/(:any)'] = "main/proyecto/$1";
 $route['servicios'] = 'main/servicios';
-$route['contacto'] = 'main/contacto';
+$route['contacto'] = 'main/contacto';*/
 
 /** Api **/
-$route['api/projects/(:num)'] = 'api/projects/$1';
-$route['api/images/(:num)'] = 'api/images/$1';
+/*$route['api/projects/(:num)'] = 'api/projects/$1';
+$route['api/images/(:num)'] = 'api/images/$1';*/
 
 
 /* End of file routes.php */
