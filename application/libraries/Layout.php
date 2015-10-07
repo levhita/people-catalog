@@ -18,18 +18,24 @@ class Layout
       $this->layout = $layout;
     }
 
-    function view($view, $data=null, $return=false)
+    function view($view='', $data = null, $return=false)
     {
-        $loadedData = array();
-        $loadedData['_content_for_layout'] = $this->obj->load->view($view,$data,true);
-
-        if($return)
-        {
+        if ( is_array($data) ) {
+            $loadedData = $data;
+        } else {
+            $loadedData = array();
+        }
+        
+        if ( !empty($view) ) {
+            $loadedData['_content_for_layout'] = $this->obj->load->view($view, $loadedData, true);
+        } else {
+            $loadedData['_content_for_layout'] = '';
+        }
+        
+        if ($return) {
             $output = $this->obj->load->view('layouts/' . $this->layout, $loadedData, true);
             return $output;
-        }
-        else
-        {
+        } else {
             $this->obj->load->view('layouts/' . $this->layout, $loadedData, false);
         }
     }

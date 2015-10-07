@@ -19,6 +19,13 @@ class Main extends CI_Controller {
 		$this->render('main/home');
 	}
 
+	public function paper_view()
+	{
+		$this->set_title('Paper view');
+		$this->layout->setLayout('layout_paper_view');
+		$this->render();
+	}
+
 	private function add_js_file($file) {
 		$this->template_data['_js_files'][] = $file;
 	}
@@ -35,7 +42,7 @@ class Main extends CI_Controller {
 		$this->template_data['_section'] = $section;
 	}
 	
-	private function render($template, $data=''){
+	private function render($template='', $data=''){
 		if (is_array($data)) {
 			$this->template_data = array_merge($this->template_data, $data);
 		}
