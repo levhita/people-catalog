@@ -1,14 +1,14 @@
- 
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>GNS | Admin</title>
+    <title>People Catalog | Admin</title>
+    
     <?php foreach($css_files as $file): ?>
         <link type="text/css" rel="stylesheet" href="<?php echo $file; ?>" />
     <?php endforeach; ?>
-    <?php foreach($js_files as $file): ?>
 
+    <?php foreach($js_files as $file): ?>
         <script src="<?php echo $file; ?>"></script>
     <?php endforeach; ?>
 
@@ -32,10 +32,10 @@
 <body>
     <!-- Beginning header -->
     <div>
-        <a href='<?php echo site_url('admin/categories')?>'>Categories</a> |
-        <a href='<?php echo site_url('admin/projects')?>'>Projects</a> |
-        <a href='<?php echo site_url('admin/images')?>'>Images</a> |
-        <a href='<?php echo site_url('admin/videos')?>'>Videos</a> |
+        <a href='<?php echo site_url('admin/tags')?>'>Tags</a> |
+        <a href='<?php echo site_url('admin/people')?>'>People</a> |
+        <a href='<?php echo site_url('admin/extra')?>'>Extra</a> |
+        <a href='<?php echo site_url('admin/contact')?>'>Contact</a> |
         <a href='<?php echo site_url('admin/assets')?>'>Assets</a> |
         <a href='<?php echo site_url('admin/configurations')?>'>Configurations</a> |
         <a href='<?php echo site_url('admin/logout')?>'>Logout</a>

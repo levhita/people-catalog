@@ -8,9 +8,8 @@ class Admin extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
-		
+		//$this->load->library('session');
 		$this->load->library('grocery_CRUD');
-		$this->load->library('session');
 		$this->layout->setLayout('layout_admin');
 	}
 	
@@ -28,14 +27,15 @@ class Admin extends CI_Controller {
 
 	private function logged_in()
 	{
-		if ($this->session->userdata($this->cookie) && ($this->session->userdata($this->cookie) == $this->valid)) {
+		return true;
+		/*if ($this->session->userdata($this->cookie) && ($this->session->userdata($this->cookie) == $this->valid)) {
 			return true;
 		}
-		return false;
+		return false;*/
 	}
 	public function validate()
 	{
-		if ($this->logged_in()) {
+		/*if ($this->logged_in()) {
 			redirect('/admin/categories', 'refresh');
 		}
 		
@@ -47,7 +47,7 @@ class Admin extends CI_Controller {
 			redirect('/admin/categories', 'refresh');	
 		} else {
 			redirect('/admin/login', 'refresh');	
-		}
+		}*/
 	}
 	
 	public function logout()
@@ -67,58 +67,73 @@ class Admin extends CI_Controller {
 	public function index()
 	{
 		$this->check_session();
-		redirect('/admin/categories', 'refresh');
+		redirect('/admin/people', 'refresh');
 	}
 	
-	public function categories()
+	public function tags()
 	{
 		$this->check_session();
 
-		$this->grocery_crud->set_table('category')
-		->columns('id_parent_category', 'name')
-		->display_as('id_parent_category','Parent')
-		->set_subject('Category')
-		->required_fields('name')
-		->set_relation('id_parent_category','category','name');
-		$output = $this->grocery_crud->render();
+		$this->grocery_crud->set_table('tag')
+		->columns('name')
+		->set_subject('Tags')
+		->required_fields('name');
+		$crud_data = (array) $this->grocery_crud->render();
 		
-		$this->layout->view('admin/default', $output);
+		$this->layout->view('admin/default', $crud_data);
 	}
 
-	public function projects()
+	public function people()
 	{
 		$this->check_session();
+		$this->config->set_item('grocery_crud_file_upload_allow_file_types', 'peg|jpg|png');
 		
-		$this->grocery_crud->set_table('project')
+		$this->grocery_crud->set_table('people')
 		->columns('name', 'description', 'active')
-		->set_subject('Project')
+		->set_subject('People')
 		->required_fields('name', 'description', 'active')
-		->set_relation_n_n('categories', 'project_category', 'category', 'id_project', 'id_category', 'name');
-		$output = $this->grocery_crud->render();
-		
-		$this->layout->view('admin/default', $output);
-	}
-
-	public function images()
-	{
-		$this->check_session();
-
-		$this->output->set_header("HTTP/1.1 200 OK");
-		$this->grocery_crud->set_table('image')
-		->display_as('id_project','Project')
-		->set_subject('Image')
-		->required_fields('id_project', 'url')
-		->set_relation('id_project','project','name')
-		->set_field_upload('url','project_uploads/')
-		->order_by('id_project, order');
+		->set_field_upload('picture_url','picture_uploads/')
+		->set_relation_n_n('tags', 'people_has_tag', 'tag', 'people_idpeople', 'tag_idtag', 'name');
 		
 		$this->grocery_crud->callback_after_upload(array($this,'create_thumbnails'));
+		$this->grocery_crud->callback_after_delete(array($this,'delete_thumbnails'));
 
-		$output = $this->grocery_crud->render();
+		$crud_data = (array) $this->grocery_crud->render();
 		
-		$this->layout->view('admin/default', $output);
+		$this->layout->view('admin/default', $crud_data);
 	}
-	
+
+	public function extra()
+	{
+		$this->check_session();
+		
+		$this->grocery_crud->set_table('extra')
+		->columns('people_idpeople', 'age','degree')
+		->display_as('people_idpeople','Name')
+		->set_subject('Extra')
+		->set_relation('people_idpeople', 'people', 'name');
+		
+		$crud_data = (array) $this->grocery_crud->render();
+		
+		$this->layout->view('admin/default', $crud_data);
+	}
+
+	public function contact()
+	{
+		$this->check_session();
+		
+		$this->grocery_crud->set_table('contact')
+		->columns('people_idpeople', 'field','value','url', 'public')
+		->display_as('people_idpeople','Name')
+		->set_subject('contact')
+		->set_relation('people_idpeople', 'people', 'name');
+		
+		$crud_data = (array) $this->grocery_crud->render();
+		
+		$this->layout->view('admin/default', $crud_data);
+	}
+
+
 	public function create_thumbnails($uploader_response, $field_info, $files_to_upload)
 	{
 		$this->load->library('image_moo');
@@ -127,51 +142,34 @@ class Admin extends CI_Controller {
 		$path_parts = pathinfo($file_uploaded);
 		$basename = basename($path_parts['basename'],".{$path_parts['extension']}");
 		
-		//Thumbnail
-		$this->image_moo->load($file_uploaded)->resize_crop(730,483)->set_jpeg_quality(90)->save($field_info->upload_path.'/'.$basename."-thumb.jpg", true);
-		$this->image_moo->load($file_uploaded)->resize_crop(214,141)->set_jpeg_quality(100)->save($field_info->upload_path.'/'.$basename."-mini-thumb.jpg", true);
-
+		// Thumbnail
+		$this->image_moo->load($file_uploaded)->resize_crop(250,250)->set_jpeg_quality(90)->save($field_info->upload_path.'/'.$basename."-thumb.jpg", true);
+		
 		// Fullsize
-		//$this->image_moo->load($file_uploaded)->resize_crop(1400,927)->save($file_uploaded, true);
-		// 1920*1271
+		$this->image_moo->load($file_uploaded)->resize_crop(500,500)->set_jpeg_quality(90)->save($field_info->upload_path.'/'.$basename.'.jpg', true);
+		
+		// Delete original if it wasn't overwritten.
+		if($path_parts['extension']!=='jpg'){
+			unlink($file_uploaded);
+		}
+		
 		return true;
 	}
 	
-	public function video_thumbnails($uploader_response, $field_info, $files_to_upload)
-	{
-		$this->load->library('image_moo');
-		$file_uploaded = $field_info->upload_path.'/'.$uploader_response[0]->name; 
+	public function delete_thumbnails($idpeople){
+		$people = $this->db->where('idpeople',$idpeople)->get('people')->row();
+  		
+  		$path_parts = pathinfo($poeple->picture_url);
+  		$basename = basename($path_parts['basename'],".{$path_parts['extension']}");
 		
-		$path_parts = pathinfo($file_uploaded);
-		$basename = basename($path_parts['basename'],".{$path_parts['extension']}");
+		$thumbnail  = 'picture_uploads/'.$basename."-thumb.jpg";
+		$picture 	= 'picture_uploads/'.$basename.'.jpg';
 		
-		// Small Thumbnail
-		$this->image_moo->load($file_uploaded)->resize_crop(214,141)->set_jpeg_quality(100)->save($field_info->upload_path.'/'.$basename."-mini-thumb.jpg", true);
-
-		// Big Thumbnail
-		//$this->image_moo->load($file_uploaded)->resize_crop(730,483)->set_jpeg_quality(100)->save($file_uploaded, true);
-		return true;
+		unlink($picture); unlink($thumbnail);
+   
+	    return true;
 	}
-
-	public function videos()
-	{
-		$this->check_session();
-
-		$this->grocery_crud->set_table('video')
-		->display_as('id_project','Project')
-		->set_subject('Video')
-		->required_fields('id_project', 'video_id', 'thumbnail')
-		->set_relation('id_project','project','name')
-		->set_field_upload('thumbnail','project_uploads/')
-		->order_by('id_project, order');
-		
-		$this->grocery_crud->callback_after_upload(array($this,'video_thumbnails'));
-		
-		$output = $this->grocery_crud->render();
-		
-		$this->layout->view('admin/videos', $output);
-	}
-
+	
 	public function assets()
 	{
 		$this->check_session();
@@ -180,9 +178,9 @@ class Admin extends CI_Controller {
 		->set_subject('Asset')
 		->required_fields('name', 'url')
 		->set_field_upload('url','asset_uploads/');
-		$output = $this->grocery_crud->render();
+		$crud_data = (array) $this->grocery_crud->render();
 		
-		$this->layout->view('admin/default', $output);
+		$this->layout->view('admin/default', $crud_data);
 	}
 
 	public function configurations()
@@ -192,9 +190,9 @@ class Admin extends CI_Controller {
 		$this->grocery_crud->set_table('configuration')
 		->set_subject('Configuration')
 		->required_fields('name', 'value');
-		$output = $this->grocery_crud->render();
+		$crud_data = (array)$this->grocery_crud->render();
 		
-		$this->layout->view('admin/default', $output);
+		$this->layout->view('admin/default', $crud_data);
 	}
 }
 

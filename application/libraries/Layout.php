@@ -18,14 +18,12 @@ class Layout
       $this->layout = $layout;
     }
 
-    function view($view='', $data = null, $return=false)
-    {
-        if ( is_array($data) ) {
+    function view($view='', $data = null, $return=false) {
+        if ( !empty($data) ) {
             $loadedData = $data;
         } else {
             $loadedData = array();
         }
-        
         if ( !empty($view) ) {
             $loadedData['_content_for_layout'] = $this->obj->load->view($view, $loadedData, true);
         } else {

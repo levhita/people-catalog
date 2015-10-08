@@ -8,7 +8,7 @@ class Main extends CI_Controller {
 		parent::__construct();
 		$this->template_data['_css_files'] = array();
 		$this->template_data['_js_files'] = array();
-		$this->template_data['_title'] = 'People Catalog';
+		$this->template_data['_title'] = $this->configurations->get('site_name');
 		$this->layout->setLayout('layout_main');
 	}
 
@@ -16,6 +16,7 @@ class Main extends CI_Controller {
 	{
 		$this->set_title('Home');
 		$this->set_section('home');
+		$this->add_js_file('/js/home.js');
 		$this->render('main/home');
 	}
 

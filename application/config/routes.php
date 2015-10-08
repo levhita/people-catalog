@@ -49,8 +49,8 @@ $route['servicios'] = 'main/servicios';
 $route['contacto'] = 'main/contacto';*/
 
 /** Api **/
-/*$route['api/projects/(:num)'] = 'api/projects/$1';
-$route['api/images/(:num)'] = 'api/images/$1';*/
+$route['api/people/'] = 'api/people';
+/*$route['api/images/(:num)'] = 'api/images/$1';*/
 
 
 /* End of file routes.php */
